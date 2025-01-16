@@ -1,25 +1,33 @@
+require('dotenv').config();
 const express = require('express');
-const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const connectDB = require('./config/db'); // Ensure this path is correct
-
-// Load environment variables
-dotenv.config();
-
-// Connect to the database
-connectDB();
+const productRoutes = require('./routes/products');
+const connectDB = require('./config/db');
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
 app.use(express.json());
+app.use(cors({ origin: 'http://localhost:3000' }));
 
-// Test route
-app.get('/', (req, res) => {
-    res.send('API is running...');
+// Connect to MongoDB
+connectDB();
+
+// Routes
+app.use('/api/products', productRoutes);
+
+// Global Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: 'Internal server error',
+    error: err.message || 'An unexpected error occurred',
+  });
 });
 
-// Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Start Server
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
