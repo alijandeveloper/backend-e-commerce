@@ -3,10 +3,10 @@ const cloudinary = require('../config/cloudinary');
 
 exports.uploadProduct = async (req, res) => {
   try {
-    const { name, description, price, category, link, modeDescription } = req.body;
+    const { name, description, price, category, link, modeDescription, rating } = req.body;
 
     // Validate required fields
-    if (!name || !description || !price || !category || !link || !modeDescription || !req.file) {
+    if (!name || !description || !price || !category || !link || !modeDescription || !rating || !req.file) {
       return res.status(400).json({ message: 'All fields are required!' });
     }
 
@@ -21,6 +21,7 @@ exports.uploadProduct = async (req, res) => {
       category,
       link,
       modeDescription,
+      rating,
       image: result.secure_url,
       imagePublicId: result.public_id,
     });
