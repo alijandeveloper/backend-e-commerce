@@ -1,19 +1,24 @@
 const Product = require('../models/Product');
-const cloudinary = require('../config/cloudinary');
+const cloudinary = require('../config/cloudinary'); // Ensure you have Cloudinary config set up
 
 exports.uploadProduct = async (req, res) => {
   try {
     const { name, description, price, category, link, modeDescription, rating } = req.body;
 
     // Validate required fields
-    if (!name || !description || !price || !category || !link || !modeDescription || !rating || !req.file) {
+    if (!name || !description || !price || !category || !link || !modeDescription || !rating || !req.files) {
       return res.status(400).json({ message: 'All fields are required!' });
     }
 
-    // Upload image to Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, { folder: 'products' });
+    // Check if images exist and upload to Cloudinary
+    const imageUploads = await Promise.all(
+      (req.files.image ? [req.files.image] : [])
+        .concat(req.files.image2 ? [req.files.image2] : [])
+        .concat(req.files.image3 ? [req.files.image3] : [])
+        .map(file => cloudinary.uploader.upload(file[0].path, { folder: 'products' }))
+    );
 
-    // Create and save the product
+    // Create and save the product in the database
     const product = new Product({
       name,
       description,
@@ -22,8 +27,10 @@ exports.uploadProduct = async (req, res) => {
       link,
       modeDescription,
       rating,
-      image: result.secure_url,
-      imagePublicId: result.public_id,
+      image: imageUploads[0]?.secure_url,
+      image2: imageUploads[1]?.secure_url, // Handle multiple images
+      image3: imageUploads[2]?.secure_url,
+      imagePublicId: imageUploads[0]?.public_id, // Store public IDs for Cloudinary deletion
     });
 
     await product.save();
