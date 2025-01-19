@@ -3,19 +3,24 @@ const cloudinary = require('../config/cloudinary');
 
 exports.uploadProduct = async (req, res) => {
   try {
-    const { name, description, price, category } = req.body;
+    const { name, description, price, category, link, modeDescription } = req.body;
 
-    if (!name || !description || !price || !category || !req.file) {
+    // Validate required fields
+    if (!name || !description || !price || !category || !link || !modeDescription || !req.file) {
       return res.status(400).json({ message: 'All fields are required!' });
     }
 
+    // Upload image to Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path, { folder: 'products' });
 
+    // Create and save the product
     const product = new Product({
       name,
       description,
       price,
       category,
+      link,
+      modeDescription,
       image: result.secure_url,
       imagePublicId: result.public_id,
     });
@@ -26,6 +31,7 @@ exports.uploadProduct = async (req, res) => {
     res.status(500).json({ message: 'Server Error', error });
   }
 };
+
 
 exports.getProducts = async (req, res) => {
   try {

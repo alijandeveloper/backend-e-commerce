@@ -6,6 +6,8 @@ const productSchema = new mongoose.Schema(
     description: { type: String, required: true },
     price: { type: Number, required: true },
     category: { type: String, required: true },
+    link: { type: String, required: true }, // New field for product link
+    modeDescription: { type: String, required: true }, // New field for mode description
     image: { type: String, required: true },
     imagePublicId: { type: String, required: true },
   },
