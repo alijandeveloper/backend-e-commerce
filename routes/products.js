@@ -1,11 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../middleware/multer'); // Import the upload middleware
-const { uploadProduct, getProducts } = require('../controllers/products');
+const upload = require('../middleware/multer');
+const { uploadProduct, getProducts, getProductById } = require('../controllers/products');
 
-// Change from upload.single('image') to upload.array('image', 3) to allow multiple images
-router.post('/upload', upload, uploadProduct); // Allow up to 3 images
+// Route for product upload
+router.post('/upload', upload, uploadProduct);
 
-router.get('/', getProducts); // Get all products route
+// Route to get all products
+router.get('/', getProducts);
+
+// Route to get a single product by ID
+router.get('/:id', getProductById);
 
 module.exports = router;
