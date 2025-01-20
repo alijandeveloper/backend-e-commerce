@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const cloudinary = require('../config/cloudinary');
+const fs = require('fs'); // Node.js File System module
 
 exports.uploadProduct = async (req, res) => {
   try {
@@ -31,8 +32,23 @@ exports.uploadProduct = async (req, res) => {
     });
 
     await product.save();
+
+    // Clean up local files after successful upload
+    const deleteLocalFiles = (files) => {
+      files.forEach(file => {
+        if (file && file[0] && file[0].path) {
+          fs.unlink(file[0].path, (err) => {
+            if (err) console.error(`Failed to delete file ${file[0].path}:`, err);
+          });
+        }
+      });
+    };
+
+    deleteLocalFiles([req.files.image, req.files.image2, req.files.image3]);
+
     res.status(201).json({ message: 'Product uploaded successfully!', product });
   } catch (error) {
+    console.error('Error uploading product:', error);
     res.status(500).json({ message: 'Server Error', error });
   }
 };
